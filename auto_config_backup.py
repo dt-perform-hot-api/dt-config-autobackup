@@ -65,59 +65,7 @@ class AutoConfigBackup(RemoteBasePlugin):
         changes = self.make_dt_api_request("GET", audit_log_endpoint)
         return changes['auditLogs']
 
-    def sanitize_for_filename(self,filename):
-        '''
-        Sanitize Raw Name so it is a Valid File Name
-
-        @param filename - Raw File Name
-
-        @return filename - Sanitized/Safe File Name
-        '''
-        filename = filename.replace(":","_")
-        return filename
-
-    def get_previous_sha_git(self, request_url):
-        response = requests.request(
-                "GET", 
-                request_url,
-                auth=(self.git_user, self.git_token)
-        )
-        if 200 <= response.status_code <= 299:
-            git_file_info = response.json()
-            return git_file_info['sha']
-        elif response.status_code == 404:
-            return ""
-        else:
-            logger.error(f"FAILED: {response.text}")
-            raise ResponseError("Uncaught Response from GitHub")
-
-    def push_to_git(self, entityId, entityType, config_json, user, timestamp):
-        sanitized_entityType = self.sanitize_for_filename(entityType)
-        config_base64 = base64.b64encode(json.dumps(config_json, indent=2).encode())
-        file_path = f"/contents/{entityId}/{sanitized_entityType}.json"
-        request_url = f"{self.git_url}{file_path}"
-
-        git_headers = {
-            "Accept": "application/vnd.github.v3+json",
-        }
-        git_body = {
-            "message": f"{user} {timestamp}"[:40],
-            "sha": self.get_previous_sha_git(request_url),
-            "committer": {
-                "name": "Aaron Philipose",
-                "email": "aaronphilipose@gmail.com"
-            },
-            "content": f"{config_base64}"[2:-1]
-        }
-
-        response = requests.request(
-                "PUT", 
-                request_url, 
-                headers=git_headers, 
-                json=git_body, 
-                auth=(self.git_user, self.git_token)
-        )
-
+  
     def get_config_changes(self):
         '''
         Looks for Config Changes and Updates GitHub if supported by Objects API
@@ -140,8 +88,7 @@ class AutoConfigBackup(RemoteBasePlugin):
                 "scopes": entityId,
             }
             setting_object_payload = self.make_dt_api_request("GET", settings_gen_endpoint, params=params)
-            self.push_to_git(entityId, entityType, setting_object_payload, user, timestamp)
-
+            
     def query(self, **kwargs):
         '''
         Routine call from the ActiveGate
