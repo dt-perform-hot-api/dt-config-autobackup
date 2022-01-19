@@ -101,7 +101,7 @@ class AutoConfigBackup(RemoteBasePlugin):
             "Accept": "application/vnd.github.v3+json",
         }
         git_body = {
-            "message": f"{user} {timestamp}"[:40],
+            "message": "THIS IS A BACKUP",
             "sha": self.get_previous_sha_git(request_url),
             "committer": {
                 "name": "NAME",
@@ -126,8 +126,6 @@ class AutoConfigBackup(RemoteBasePlugin):
         settings_gen_endpoint = "/api/v2/settings/objects"
         audit_logs = self.get_audit_logs()
         for x in range(len(audit_logs)):
-            user = str(audit_logs[x]['user'])
-            timestamp = int(audit_logs[x]['timestamp'])
             try:
                 entityId = str(audit_logs[x]['entityId']).split(sep="(",maxsplit=1)[1].split(sep=")",maxsplit=1)[0]
                 entityType = str(audit_logs[x]['entityId']).split(maxsplit=1)[0]
