@@ -60,21 +60,35 @@ class AutoConfigBackup(RemoteBasePlugin):
         audit_log_endpoint = f"/api/v2/auditlogs?filter=eventType(CREATE,UPDATE)&from={self.start_time}&to={self.end_time}&sort=timestamp"
         changes = self.make_dt_api_request("GET", audit_log_endpoint)
         return changes['auditLogs']
-    
-    def get_previous_sha_git(self, file_path):
-        pass
+
+    def sanitize_for_filename(self,filename):
+        filename = filename.replace(":","_")
+        return filename
+
+    def get_previous_sha_git(self, request_url):
+        response = requests.request(
+                "GET", 
+                request_url,
+                auth=(self.git_user, self.git_token)
+        )
+        if 200 <= response.status_code <= 299:
+            git_file_info = response.json()
+            return git_file_info['sha']
+        else:
+            logger.fatal(f"FAILED: {response.text}")
 
     def push_to_git(self, entityId, entityType, config_json, user, timestamp):
-        sanitized_entityType = entityType.replace(":","_")
-        config_encoded = json.dumps(config_json, indent=2).encode()
-        config_base64 = base64.b64encode(config_encoded)
+        sanitized_entityType = self.sanitize_for_filename(entityType)
+        config_base64 = base64.b64encode(json.dumps(config_json, indent=2).encode())
         file_path = f"/contents/{entityId}/{sanitized_entityType}.json"
+        request_url = f"{self.git_url}{file_path}"
+
         git_headers = {
             "Accept": "application/vnd.github.v3+json",
         }
-        logger.info (f"{self.git_url}{file_path}")
         git_body = {
             "message": f"{user} {timestamp}"[:40],
+            "sha": self.get_previous_sha_git(request_url),
             "committer": {
                 "name": "Aaron Philipose",
                 "email": "aaronphilipose@gmail.com"
@@ -84,7 +98,15 @@ class AutoConfigBackup(RemoteBasePlugin):
         logger.info ("Git Body Start")
         logger.info (json.dumps(git_body, indent=2))
         logger.info ("Git Body Stop")
-        response = requests.request("PUT", f"{self.git_url}{file_path}", headers=git_headers, json=git_body, auth=(self.git_user, self.git_token))
+
+        response = requests.request(
+                "PUT", 
+                request_url, 
+                headers=git_headers, 
+                json=git_body, 
+                auth=(self.git_user, self.git_token)
+        )
+
         logger.info (response.url)
         logger.info (response.json())
         logger.info (response.status_code)
