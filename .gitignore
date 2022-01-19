@@ -127,3 +127,14 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Dynatrace Testing Files
+properties.json
+*.whl
+
+# MacOS Filter
+.DS_Store
+
+#pipenv ignores
+Pipfile
+Pipfile.lock

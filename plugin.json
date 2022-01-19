@@ -1,0 +1,46 @@
+{
+  "name": "custom.remote.python.automated_configuration_audit",
+  "version": "0.0.1",
+  "type": "python",
+  "requiredAgentVersion": "1.132.0",
+  "entity": "CUSTOM_DEVICE",
+  "metricGroup": "tech.Automated_Configuration_Audit",
+  "technologies": ["Automated Configuration Backup"],
+  "source": {
+    "package": "auto_config_backup",
+    "className": "AutoConfigBackup",
+    "install_requires": ["requests>=2.6.0", "pytz>=2020.1"],
+    "activation": "Remote"
+  },
+  "metrics": [
+    {
+      "entity": "CUSTOM_DEVICE",
+      "timeseries": {
+        "key": "rtt",
+        "unit": "MilliSecond",
+        "displayname": "Round-trip time"
+      }
+    }
+  ],
+  "properties": [
+    {"key": "url", "type": "String"},
+    {"key": "api_token", "type": "Password"},
+    {"key": "polling_interval", "type": "Integer", "defaultValue": 1},
+    {"key": "verify_ssl", "type": "Boolean", "defaultValue": true},
+    {"key": "git_url", "type": "String"},
+    {"key": "git_user", "type": "String"},
+    {"key": "git_token", "type": "Password"}
+  ],
+  "configUI": {
+    "displayName": "Automated Configuration Audit",
+    "properties": [
+      {"key": "url", "displayName": "URL of the Dynatrace Tenant", "displayOrder": 1, "displayHint": "For example: https://XXXXX.dynatrace-managed.com/e/abc-123-def-456-7890"},
+      {"key": "api_token", "displayName": "API Token with V1 metrics, Audit Logs & Read Entities", "displayOrder": 2, "displayHint": "For example: ABllUTJYQwKKQRWSpPIva"},
+      {"key": "polling_interval", "displayName": "Polling frequency (in minutes)", "displayOrder": 3, "displayHint": "For example: 5"},
+      {"key": "verify_ssl", "displayName": "Verify URL SSL Certicate", "displayOrder": 4},
+      {"key": "git_url", "displayName": "Git URL", "displayOrder": 5, "displayHint": "For example: 5"},
+      {"key": "git_user", "displayName": "Git User", "displayOrder": 6, "displayHint": "For example: 5"},
+      {"key": "git_token", "displayName": "Git Personal Access Token", "displayOrder": 7, "displayHint": "For example: 5"}
+    ]
+  }
+}
