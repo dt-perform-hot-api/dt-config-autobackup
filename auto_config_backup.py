@@ -1,3 +1,4 @@
+from xmlrpc.client import ResponseError
 from ruxit.api.base_plugin import RemoteBasePlugin
 from datetime import datetime, timedelta
 from math import floor
@@ -11,6 +12,9 @@ logger = logging.getLogger(__name__)
 
 class AutoConfigBackup(RemoteBasePlugin):
     def initialize(self, **kwargs):
+        '''
+        Required Plugin Function for ActiveGate. Executed on First Run
+        '''
         logger.info("Config: %s", self.config)
         config = kwargs['config']
         
@@ -23,7 +27,7 @@ class AutoConfigBackup(RemoteBasePlugin):
         }
 
         self.polling_interval = int(config['polling_interval']) * 60 * 1000
-
+        
         self.start_time = floor(datetime.now().timestamp()*1000) - self.polling_interval
         self.verify_ssl = config['verify_ssl']
         if not self.verify_ssl:
@@ -62,6 +66,13 @@ class AutoConfigBackup(RemoteBasePlugin):
         return changes['auditLogs']
 
     def sanitize_for_filename(self,filename):
+        '''
+        Sanitize Raw Name so it is a Valid File Name
+
+        @param filename - Raw File Name
+
+        @return filename - Sanitized/Safe File Name
+        '''
         filename = filename.replace(":","_")
         return filename
 
@@ -77,7 +88,8 @@ class AutoConfigBackup(RemoteBasePlugin):
         elif response.status_code == 404:
             return ""
         else:
-            logger.fatal(f"FAILED: {response.text}")
+            logger.error(f"FAILED: {response.text}")
+            raise ResponseError("Uncaught Response from GitHub")
 
     def push_to_git(self, entityId, entityType, config_json, user, timestamp):
         sanitized_entityType = self.sanitize_for_filename(entityType)
@@ -107,6 +119,9 @@ class AutoConfigBackup(RemoteBasePlugin):
         )
 
     def get_config_changes(self):
+        '''
+        Looks for Config Changes and Updates GitHub if supported by Objects API
+        '''
 
         settings_gen_endpoint = "/api/v2/settings/objects"
         audit_logs = self.get_audit_logs()
@@ -117,7 +132,7 @@ class AutoConfigBackup(RemoteBasePlugin):
                 entityId = str(audit_logs[x]['entityId']).split(sep="(",maxsplit=1)[1].split(sep=")",maxsplit=1)[0]
                 entityType = str(audit_logs[x]['entityId']).split(maxsplit=1)[0]
             except IndexError:
-                logger.fatal (f"FAILED TO PARSE ENTITY: {str(audit_logs[x]['entityId'])}")
+                logger.error (f"FAILED TO PARSE ENTITY: {str(audit_logs[x]['entityId'])}")
                 continue
             logging.info(f"AUDIT - CHANGES FOUND BETWEEN {self.start_time} & {self.end_time} = {len(audit_logs)}")
             params = {
