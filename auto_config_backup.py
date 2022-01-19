@@ -74,6 +74,8 @@ class AutoConfigBackup(RemoteBasePlugin):
         if 200 <= response.status_code <= 299:
             git_file_info = response.json()
             return git_file_info['sha']
+        elif response.status_code == 404:
+            return ""
         else:
             logger.fatal(f"FAILED: {response.text}")
 
@@ -119,8 +121,13 @@ class AutoConfigBackup(RemoteBasePlugin):
             user = str(audit_logs[x]['user'])
             category = str(audit_logs[x]['category'])
             timestamp = int(audit_logs[x]['timestamp'])
-            entityId = str(audit_logs[x]['entityId']).split(sep="(",maxsplit=1)[1].split(sep=")",maxsplit=1)[0]
-            entityType = str(audit_logs[x]['entityId']).split(maxsplit=1)[0]
+            try:
+                entityId = str(audit_logs[x]['entityId']).split(sep="(",maxsplit=1)[1].split(sep=")",maxsplit=1)[0]
+                entityType = str(audit_logs[x]['entityId']).split(maxsplit=1)[0]
+            except IndexError:
+                logger.fatal (f"FAILED TO PARSE ENTITY: {str(audit_logs[x]['entityId'])}")
+                break
+
             patch = str(audit_logs[x]['patch'])
             logging.info(f"User: {user}\nCategory: {category}\nTimestamp: {timestamp}\n{entityId}\n{entityType}\n{patch}")
             logging.info(f"AUDIT - CHANGES FOUND BETWEEN {self.start_time} & {self.end_time} = {len(audit_logs)}")
