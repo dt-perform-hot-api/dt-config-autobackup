@@ -6,7 +6,6 @@ import requests
 import logging
 import base64
 import json
-import hashlib
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +68,6 @@ class AutoConfigBackup(RemoteBasePlugin):
         sanitized_entityType = entityType.replace(":","_")
         config_encoded = json.dumps(config_json, indent=2).encode()
         config_base64 = base64.b64encode(config_encoded)
-        config_sha = hashlib.sha1(config_encoded)
         file_path = f"/contents/{entityId}/{sanitized_entityType}.json"
         git_headers = {
             "Accept": "application/vnd.github.v3+json",
@@ -77,7 +75,6 @@ class AutoConfigBackup(RemoteBasePlugin):
         logger.info (f"{self.git_url}{file_path}")
         git_body = {
             "message": f"{user} {timestamp}"[:40],
-            "sha": f"{config_sha.hexdigest()}",
             "committer": {
                 "name": "Aaron Philipose",
                 "email": "aaronphilipose@gmail.com"
