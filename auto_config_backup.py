@@ -74,8 +74,6 @@ class AutoConfigBackup(RemoteBasePlugin):
         settings_gen_endpoint = ""
         audit_logs = self.get_audit_logs()
         for x in range(len(audit_logs)):
-            user = str(audit_logs[x]['user'])
-            timestamp = int(audit_logs[x]['timestamp'])
             try:
                 entityId = str(audit_logs[x]['entityId']).split(sep="(",maxsplit=1)[1].split(sep=")",maxsplit=1)[0]
                 entityType = str(audit_logs[x]['entityId']).split(maxsplit=1)[0]
