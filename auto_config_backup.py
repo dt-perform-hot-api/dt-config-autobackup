@@ -97,9 +97,6 @@ class AutoConfigBackup(RemoteBasePlugin):
             },
             "content": f"{config_base64}"[2:-1]
         }
-        logger.info ("Git Body Start")
-        logger.info (json.dumps(git_body, indent=2))
-        logger.info ("Git Body Stop")
 
         response = requests.request(
                 "PUT", 
@@ -109,17 +106,12 @@ class AutoConfigBackup(RemoteBasePlugin):
                 auth=(self.git_user, self.git_token)
         )
 
-        logger.info (response.url)
-        logger.info (response.json())
-        logger.info (response.status_code)
-
     def get_config_changes(self):
 
         settings_gen_endpoint = "/api/v2/settings/objects"
         audit_logs = self.get_audit_logs()
         for x in range(len(audit_logs)):
             user = str(audit_logs[x]['user'])
-            category = str(audit_logs[x]['category'])
             timestamp = int(audit_logs[x]['timestamp'])
             try:
                 entityId = str(audit_logs[x]['entityId']).split(sep="(",maxsplit=1)[1].split(sep=")",maxsplit=1)[0]
@@ -127,16 +119,12 @@ class AutoConfigBackup(RemoteBasePlugin):
             except IndexError:
                 logger.fatal (f"FAILED TO PARSE ENTITY: {str(audit_logs[x]['entityId'])}")
                 continue
-
-            patch = str(audit_logs[x]['patch'])
-            logging.info(f"User: {user}\nCategory: {category}\nTimestamp: {timestamp}\n{entityId}\n{entityType}\n{patch}")
             logging.info(f"AUDIT - CHANGES FOUND BETWEEN {self.start_time} & {self.end_time} = {len(audit_logs)}")
             params = {
                 "schemaIds": entityType,
                 "scopes": entityId,
             }
             setting_object_payload = self.make_dt_api_request("GET", settings_gen_endpoint, params=params)
-            logging.info(f"Settings: {setting_object_payload}")
             self.push_to_git(entityId, entityType, setting_object_payload, user, timestamp)
 
     def query(self, **kwargs):
@@ -148,6 +136,8 @@ class AutoConfigBackup(RemoteBasePlugin):
             audit_logs = self.get_audit_logs()
             logging.info(audit_logs)
             if len(audit_logs) == 0:
-                logging.info("Logs Has Info")
-            self.get_config_changes()
+                logging.info("No Changes In Time")
+            else:
+                logger.info("Found Audit Changes %d",len(audit_logs))
+                self.get_config_changes()
             self.start_time = self.end_time + 1
