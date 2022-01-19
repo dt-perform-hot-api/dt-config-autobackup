@@ -71,7 +71,7 @@ class AutoConfigBackup(RemoteBasePlugin):
         Looks for Config Changes and Updates GitHub if supported by Objects API
         '''
 
-        settings_gen_endpoint = "/api/v2/settings/objects"
+        settings_gen_endpoint = ""
         audit_logs = self.get_audit_logs()
         for x in range(len(audit_logs)):
             user = str(audit_logs[x]['user'])
@@ -87,7 +87,6 @@ class AutoConfigBackup(RemoteBasePlugin):
                 "schemaIds": entityType,
                 "scopes": entityId,
             }
-            setting_object_payload = self.make_dt_api_request("GET", settings_gen_endpoint, params=params)
             
     def query(self, **kwargs):
         '''
