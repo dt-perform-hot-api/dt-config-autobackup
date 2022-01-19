@@ -104,8 +104,8 @@ class AutoConfigBackup(RemoteBasePlugin):
             "message": f"{user} {timestamp}"[:40],
             "sha": self.get_previous_sha_git(request_url),
             "committer": {
-                "name": "Aaron Philipose",
-                "email": "aaronphilipose@gmail.com"
+                "name": "NAME",
+                "email": "EMAIL@TEST.COM"
             },
             "content": f"{config_base64}"[2:-1]
         }
