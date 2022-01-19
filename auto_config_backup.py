@@ -126,7 +126,7 @@ class AutoConfigBackup(RemoteBasePlugin):
                 entityType = str(audit_logs[x]['entityId']).split(maxsplit=1)[0]
             except IndexError:
                 logger.fatal (f"FAILED TO PARSE ENTITY: {str(audit_logs[x]['entityId'])}")
-                break
+                continue
 
             patch = str(audit_logs[x]['patch'])
             logging.info(f"User: {user}\nCategory: {category}\nTimestamp: {timestamp}\n{entityId}\n{entityType}\n{patch}")
