@@ -76,7 +76,7 @@ git checkout -t origin/Phase-0-Extension-Skeleton
 ```
 
 ## Phase 1 - Query the Audit Log
-1. Checkout to our first guided branch:
+1. Checkout to our second guided branch:
 ```
 git checkout -t origin/Phase-1-Query-Audit-Log
 ```
@@ -90,9 +90,9 @@ git checkout -t origin/Phase-1-Query-Audit-Log
 ```
 git reset --hard HEAD
 ```
-2. Checkout to the second guided branch
+2. Checkout to the third guided branch
 ```
-git checkout -t origin/Phase-1-Query-Audit-Log
+git checkout -t origin/Phase-2-Getting-the-Config
 ```
 3. Add in the API endpoint and build the call to get configuration info. We need to parse the entityId into seperate variables
 4. Run plugin_sdk simulate_plugin
@@ -103,12 +103,13 @@ git checkout -t origin/Phase-1-Query-Audit-Log
 ```
 git reset --hard HEAD
 ```
-2. Checkout to the second guided branch
+2. Checkout to the fourth guided branch
 ```
-git checkout -t origin/Phase-1-Query-Audit-Log
+git checkout -t origin/Phase-3-Push-to-Git
 ```
 3. Open environment v2 API and navigate to settings
 4 Add in the code a call to post to GitHub with the user name and timestamp
 5. plugin_sdk simulate_plugin
 
 ## Phase 4 - Building the Extension
+
