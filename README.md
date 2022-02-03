@@ -112,4 +112,13 @@ git checkout -t origin/Phase-3-Push-to-Git
 5. plugin_sdk simulate_plugin
 
 ## Phase 4 - Building the Extension
+1. Reset the git
+```
+git reset --hard HEAD
+```
+2. Checkout to the main branch
+3. plugin_sdk build_plugin
+4. Install the plugin via Dynatrace UI (Settings > Monitoring > Monitored Technologies > Add new technology monitoring > Add ActiveGate Extension > Upload Extension)
+5. Copy the plugin to the Dynatrace ActiveGate plugin Directory
 
+Reach out to Aaron at aaron.philipose@dynatrace.com if you have any questions!
