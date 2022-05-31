@@ -138,3 +138,5 @@ properties.json
 #pipenv ignores
 Pipfile
 Pipfile.lock
+
+plugin_deployment*
